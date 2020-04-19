@@ -4,55 +4,7 @@ import json
 import re
 #import dateutil.parser
 base = 'http://www1.wdr.de'
-
-def parseShows(url):
-	response = requests.get(url).text
-	uls = re.compile('<ul  class="list">(.+?)</ul>', re.DOTALL).findall(response)
-	l = []
-	for ul in uls:
-		lis = re.compile('<li >(.+?)</li>', re.DOTALL).findall(ul)
-		for li in lis:
-			d = {}
-			uri = re.compile('href="(.+?)"', re.DOTALL).findall(li)[0]
-			if uri != 'http://www.wdrmaus.de/':
-				d['url'] = base + uri
-				d['_name'] = re.compile('<span>(.+?)</span>', re.DOTALL).findall(li)[0]
-				try:
-					thumb = re.compile('<img.+?src="(.+?)"', re.DOTALL).findall(li)[0].replace('~_v-ARDKleinerTeaser.jpg','~_v-original.jpg').replace('http//www','http://www')
-					if thumb.startswith('http'):
-						d['_thumb'] = thumb
-					else:
-						d['_thumb'] = base + thumb
-				except: pass
-				d['_channel'] = 'WDR'
-				d['_type'] = 'dir'
-				d['mode'] = 'libWdrListVideos'
-				
-				l.append(d)
-		
-	return l
 	
-def parseVideos(url):
-	response = requests.get(url).text
-	typeA = re.compile('<div class="box".+?<a(.+?)>(.+?)</a>.+?<a(.+?)>(.+?)</a>', re.DOTALL).findall(response)
-	l = []
-	for href,show,href2,stuff in typeA:
-		if '<div class="media mediaA video">' in stuff:
-			d = {}
-			d['url'] = base + re.compile('href="(.+?)"', re.DOTALL).findall(href2)[0]
-			if '<h4' in stuff:
-				d['_name'] = re.compile('<h4.+?>.+?<span class="hidden">Video:</span>(.+?)<', re.DOTALL).findall(stuff)[0].strip()
-			else:
-				d['_name'] = show.strip()
-			if '<img' in stuff:
-				d['_thumb'] = base + re.compile('<img.+?src="(.+?)"', re.DOTALL).findall(stuff)[0]
-			d['_plot'] = re.compile('<p class="teasertext">(.+?)<', re.DOTALL).findall(stuff)[0]
-			#TODO duration, ut
-			d['_type'] = 'video'
-			d['mode'] = 'libWdrPlay'
-			
-			l.append(d)
-	return l
 	
 def parseVideo(url,signLang=False):
 	response = requests.get(url).text

@@ -10,8 +10,6 @@ def parsePodcasts(id):
 	response = requests.get(f'{base}/{id}.podcast').text
 	items = re.compile('<item>(.+?)</item>', re.DOTALL).findall(response)
 	fanart = re.compile('<itunes:image href="(.+?)"', re.DOTALL).findall(response)[0]
-	print('+++++++++++++++')
-	print(fanart)
 	result = {'items':[],'pagination':{'currentPage':0}}
 	for item in items:
 		d = {'type':'audio', 'params':{'mode':'libWdrPlayDirect','stream':'audio'}, 'metadata':{'art':{}}}

@@ -36,13 +36,7 @@ class libwdr(lm4):
 		l.append({'metadata':{'name':self.translation(32030)}, 'params':{'mode':'libWdrListId', 'id':'sendung-verpasst-100'}, 'type':'dir'})
 		l.append({'metadata':{'name':self.translation(32132)}, 'params':{'mode':'libMediathekListLetters','ignore':'#', 'subParams':'{"mode":"libWdrListLetter"}'}, 'type':'dir'})
 		l.append({'metadata':{'name':self.translation(32133)}, 'params':{'mode':'libMediathekListDate', 'subParams':'{"mode":"libWdrListDateVideos"}'}, 'type':'dir'})
-		"""
-		l.append({'_name':self.translation(31032), 'mode':'libWdrListLetters', '_type':'dir'})
-		l.append({'_name':self.translation(31033), 'mode':'libWdrListDate', '_type':'dir'})
-		#l.append({'name':'Videos in Gebärdensprache', 'mode':'libWdrListFeed', 'url':'http://www1.wdr.de/mediathek/video/sendungen/videos-dgs-100~_format-mp111_type-rss.feed', '_type':'dir'})
-		#l.append({'name':'Videos mit Untertiteln', 'mode':'libWdrListFeed', 'url':'http://www1.wdr.de/mediathek/video/sendungen/videos-untertitel-100~_format-mp111_type-rss.feed', '_type':'dir'})
-		l.append({'_name':self.translation(31039), 'mode':'libWdrSearch', '_type':'dir'})
-		"""
+
 		return {'items':l,'name':'root'}
 		
 	def libWdrListLetter(self):
