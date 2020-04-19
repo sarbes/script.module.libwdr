@@ -19,15 +19,17 @@ class libwdr(lm4):
 		'libWdrListId': self.libWdrListId,
 		'libWdrListFeed': self.libWdrListFeed,
 		'libWdrListDateVideos': self.libWdrListDateVideos,
+		'libWdrListPodcast': self.libWdrListPodcast,
 		'libWdrSearch': self.libWdrSearch,
 		'libWdrListSearch': self.libWdrListSearch,
 		})
 
-		self.playbackModes = {
+		self.playbackModes.update({
 			'libWdrPlay':self.libWdrPlay,
-			'libWdrPlayAudio':self.libWdrPlayAudio,
+			'libWdrPlayNimex':self.libWdrPlayNimex,
 			'libWdrPlayJs':self.libWdrPlayJs,
-		}
+			'libWdrPlayDirect':self.libWdrPlayDirect,
+		})
 
 	def libWdrListMain(self):
 		l = []
@@ -50,7 +52,9 @@ class libwdr(lm4):
 		return libWdrRssAndroidParser.parseVideos(self.params['url'])
 		
 	def libWdrListId(self):
-		return libWdrRssParser.parseFeed(f'https://www1.wdr.de/{self.params["id"]}~_format-mp111_type-rss.feed')
+		print(f'https://www1.wdr.de/{self.params["id"]}~_format-mp111_type-rss.feed')
+		return libWdrRssParser.parseId(self.params['id'])
+		r#eturn libWdrRssParser.parseFeed(f'https://www1.wdr.de/{self.params["id"]}~_format-mp111_type-rss.feed')
 
 	def libWdrListFeed(self):
 		return libWdrRssParser.parseFeed(self.params['url'])
@@ -58,6 +62,10 @@ class libwdr(lm4):
 	def libWdrListDateVideos(self):
 		self.params['id'] = f'sendung-verpasst-100~_tag-{self.params["ddmmyyyy"]}'
 		return self.libWdrListId()
+
+	def libWdrListPodcast(self):
+		import libwdrpodcast
+		return libwdrpodcast.parsePodcasts(self.params['id'])
 		
 	def libWdrSearch(self):
 		import libwdrhtmlparser as libWdrHtmlParser
@@ -73,8 +81,13 @@ class libwdr(lm4):
 			return {'media':[{'url':self.params['m3u8'], 'type':'video', 'stream':'HLS'}]}
 		else:
 			return libWdrParser.parseVideo(self.params['url'])
+
+	def libWdrPlayDirect(self):
+		import requests
+		requests.head(self.params['url'])
+		return {'media':[{'url':self.params['url'], 'stream':self.params['stream']}]}
 		
-	def libWdrPlayAudio(self):
+	def libWdrPlayNimex(self):
 		import libwdrnimex
 		return libwdrnimex.getAudio(self.params['id'])
 		

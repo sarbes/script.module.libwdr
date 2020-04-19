@@ -56,10 +56,23 @@ def parseVideos(url):
 	
 def parseVideo(url,signLang=False):
 	response = requests.get(url).text
-	j = json.loads(re.compile('<a href="javascript:void\(0\);" class="mediaLink video" data-extension=\'(.+?)\'', re.DOTALL).findall(response)[0])
-	url = j['mediaObj']['url']
-	return parseVideoJs(url,signLang)
+	if 'mediaLink video' in response:
+		j = json.loads(re.compile('<a href="javascript:void\(0\);" class="mediaLink video" data-extension=\'(.+?)\'', re.DOTALL).findall(response)[0])
+		url = j['mediaObj']['url']
+		return parseVideoJs(url,signLang)
+	if 'mediaLink audio' in response:
+		j = json.loads(re.compile('<a href="javascript:void\(0\);" class="mediaLink audio" data-extension=\'(.+?)\'', re.DOTALL).findall(response)[0])
+		url = j['mediaObj']['url']
+		return parseAudioJs(url)
 	
+def parseAudioJs(url):
+	response = requests.get(url).text
+	j = json.loads(response[38:-2])
+	audio = j['mediaResource']['dflt']['audioURL']
+	if audio.startswith('//'):
+		audio = f'http:{audio}'
+	return {'media':[{'url':audio, 'type':'video', 'stream':'audio'}]}
+
 def parseVideoJs(url,signLang=False):
 	response = requests.get(url).text
 	j = json.loads(response[38:-2])

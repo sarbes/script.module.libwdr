@@ -8,12 +8,17 @@ base = 'http://www1.wdr.de'
 
 
 def parseShows(id):
+	print(f'{base}/{id}~_variant-android.mobile')
 	response = requests.get(f'{base}/{id}~_variant-android.mobile').text
 	items = re.compile('<mp:additionallink>(.+?)</mp:additionallink>', re.DOTALL).findall(response)
-	creator = re.compile('<dc:creator>(.+?)</dc:creator>', re.DOTALL).findall(response)[0]
+	#creator = re.compile('<dc:creator>(.+?)</dc:creator>', re.DOTALL).findall(response)[0]
 	result = {'items':[],'pagination':{'currentPage':0}}
 	for item in items:
-		d = {'type':'dir', 'params':{'mode':'libWdrListId'}, 'metadata':{'art':{}}}
+		#print(item)
+		if 'WDR Audiothek' in re.compile('<category>(.+?)</category>', re.DOTALL).findall(response):
+			d = {'type':'dir', 'params':{'mode':'libWdrListPodcast'}, 'metadata':{'art':{}}}
+		else:
+			d = {'type':'dir', 'params':{'mode':'libWdrListId'}, 'metadata':{'art':{}}}
 		d['metadata']['name'] = re.compile('<mp:label>(.+?)</mp:label>', re.DOTALL).findall(item)[0]
 		#if len(l) != 0 and d['name'] == l[-1]['name']: continue
 		#d['id'],extension = re.compile('<mp:link>(.+?)</mp:link>', re.DOTALL).findall(item)[0].split('/')[-1].split('~')

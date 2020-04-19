@@ -15,17 +15,24 @@ def parseVideos(url):#TODO remove "mehr"
 	feed = base + feed.replace('.feed','~_format-mp111_type-rss.feed')
 	return parseFeed(feed)
 	
+def parseId(id):
+	return parseFeed(f'{base}/{id}~_format-mp111_type-rss.feed')
+
 def parseFeed(feed,type='video'):
+	requests.head(feed)
 	response = requests.get(feed).text
 	items = re.compile('<item>(.+?)</item>', re.DOTALL).findall(response)
 	result = {'items':[],'pagination':{'currentPage':0}}
 	for item in items:
 		dctype = re.compile('<dc:type>(.+?)</dc:type>', re.DOTALL).findall(item)[0]
-		if 'Video' in dctype or 'Radio' in dctype:
-			if 'Video' in dctype:
+		#if 'Video' in dctype or 'Radio' in dctype:
+		WLdctypes = ['Video','Radio','Audio']
+		#if any(WLdctype in dctype for WLdctype in WLdctypes):
+		if any(WLdctype in dctype for WLdctype in WLdctypes):
+			if 'Video' in dctype or 'Audio' in dctype:
 				d = {'type':type, 'params':{'mode':'libWdrPlay'}, 'metadata':{'art':{}}}
 			if 'Radio' in dctype:
-				d = {'type':'audio', 'params':{'mode':'libWdrPlayAudio'}, 'metadata':{'art':{}}}
+				d = {'type':'audio', 'params':{'mode':'libWdrPlayNimex'}, 'metadata':{'art':{}}}
 			d['metadata']['name'] = re.compile('<title>(.+?)</title>', re.DOTALL).findall(item)[0].replace('&amp;','&')
 			d['params']['url'] = re.compile('<link>(.+?)</link>', re.DOTALL).findall(item)[0]
 			d['params']['id'] = re.compile('<link>(.+?)</link>', re.DOTALL).findall(item)[0].split('/')[-1].split('.')[0]
