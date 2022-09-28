@@ -46,9 +46,7 @@ class libwdr(lm4):
 		return libWdrRssAndroidParser.parseVideos(self.params['url'])
 		
 	def libWdrListId(self):
-		print(f'https://www1.wdr.de/{self.params["id"]}~_format-mp111_type-rss.feed')
 		return libWdrRssParser.parseId(self.params['id'])
-		r#eturn libWdrRssParser.parseFeed(f'https://www1.wdr.de/{self.params["id"]}~_format-mp111_type-rss.feed')
 
 	def libWdrListFeed(self):
 		return libWdrRssParser.parseFeed(self.params['url'])
@@ -63,7 +61,6 @@ class libwdr(lm4):
 		
 	def libWdrSearch(self):
 		import libwdrhtmlparser as libWdrHtmlParser
-		#search_string = libMediathek.getSearchString()
 		return libWdrHtmlParser.parse("http://www1.wdr.de/mediathek/video/suche/avsuche100~suche_parentId-videosuche100.html?pageNumber=1&sort=date&q="+search_string)
 		
 	def libWdrListSearch(self):
@@ -73,8 +70,10 @@ class libwdr(lm4):
 	def libWdrPlay(self):
 		if 'm3u8' in self.params:
 			return {'media':[{'url':self.params['m3u8'], 'type':'video', 'stream':'HLS'}]}
+		elif 'uservideomode' in self.params:
+			return libWdrParser.parseVideo(self.params['url'], self.params['uservideomode'])
 		else:
-			return libWdrParser.parseVideo(self.params['url'])
+			return libWdrParser.parseVideo(self.params['url'], 'none')
 
 	def libWdrPlayDirect(self):
 		import requests
@@ -86,6 +85,9 @@ class libwdr(lm4):
 		return libwdrnimex.getAudio(self.params['id'])
 		
 	def libWdrPlayJs(self):
-		return libWdrParser.parseVideoJs(self.params['url'])
+		if 'uservideomode' in self.params:
+			return libWdrParser.parseVideoJs(self.params['url'], self.params['uservideomode'])
+		else:
+			return libWdrParser.parseVideoJs(self.params['url'], 'none')
 		
 		

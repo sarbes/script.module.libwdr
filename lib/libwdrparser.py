@@ -6,12 +6,12 @@ import re
 base = 'http://www1.wdr.de'
 	
 	
-def parseVideo(url,signLang=False):
+def parseVideo(url,viewerMode = 'none'):
 	response = requests.get(url).text
 	if 'mediaLink video' in response:
 		j = json.loads(re.compile('<a href="javascript:void\(0\);" class="mediaLink video" data-extension=\'(.+?)\'', re.DOTALL).findall(response)[0])
 		url = j['mediaObj']['url']
-		return parseVideoJs(url,signLang)
+		return parseVideoJs(url,viewerMode)
 	if 'mediaLink audio' in response:
 		j = json.loads(re.compile('<a href="javascript:void\(0\);" class="mediaLink audio" data-extension=\'(.+?)\'', re.DOTALL).findall(response)[0])
 		url = j['mediaObj']['url']
@@ -25,7 +25,7 @@ def parseAudioJs(url):
 		audio = f'http:{audio}'
 	return {'media':[{'url':audio, 'type':'video', 'stream':'audio'}]}
 
-def parseVideoJs(url,signLang=False):
+def parseVideoJs(url,viewerMode='none'):
 	response = requests.get(url).text
 	j = json.loads(response[38:-2])
 	
@@ -33,8 +33,10 @@ def parseVideoJs(url,signLang=False):
 	subUrlTtml = False
 	for type in j['mediaResource']:
 		if type == 'dflt' or type == 'alt':
-			if signLang and 'slVideoURL' in j['mediaResource'][type]:
+			if viewerMode == 'signlang' and 'slVideoURL' in j['mediaResource'][type]:
 				videos.append(j['mediaResource'][type]['slVideoURL'])
+			elif viewerMode == 'viddesc' and 'adVideoURL' in j['mediaResource'][type]:
+				videos.append(j['mediaResource'][type]['adVideoURL'])
 			else:
 				videos.append(j['mediaResource'][type]['videoURL'])
 		elif type == 'captionURL':
@@ -62,7 +64,7 @@ def parseVideoJs(url,signLang=False):
 		d['media'].append({'url':video, 'type': 'video', 'stream':'HLS'})
 	else:
 		d['media'].append({'url':video, 'type': 'video', 'stream':'mp4'})
-	if subUrlTtml:
+	if subUrlTtml and (viewerMode != 'none'):
 		if subUrlTtml.startswith('//'):
 			subUrlTtml = 'http:' + subUrlTtml
 		d['subtitle'] = []
